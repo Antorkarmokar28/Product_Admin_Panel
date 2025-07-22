@@ -3,14 +3,11 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./routes/routes";
-import { ThemeProvider } from "./components/modules/theme-provider";
-import { SidebarProvider } from "./components/ui/sidebar";
+import { ThemeProvider } from "./components/providers/theme-provider";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <SidebarProvider>
-        <RouterProvider router={router} />
-      </SidebarProvider>
+      <RouterProvider router={router} />
     </ThemeProvider>
   </StrictMode>
 );

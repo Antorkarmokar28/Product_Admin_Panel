@@ -1,11 +1,12 @@
+import * as React from "react";
 import {
-  Calendar,
+  ChevronRight,
   ChevronUp,
   Home,
-  Inbox,
   LayoutDashboard,
-  Search,
+  LogOut,
   Settings,
+  ShoppingBasket,
   User,
 } from "lucide-react";
 import {
@@ -13,80 +14,139 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+const data = {
+  navMain: [
+    {
+      title: "Home",
+      icon: Home,
+      url: "/",
+    },
+    {
+      title: "Profile",
+      icon: User,
+      children: [
+        {
+          title: "Products",
+          url: "/products",
+          icon: ShoppingBasket,
+        },
+        {
+          title: "Users",
+          url: "/users",
+          icon: User,
+        },
+      ],
+    },
+  ],
+};
 
-export function AppSidebar() {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar className="h-full border-r" collapsible="icon">
-      {/* sidebar header */}
-      <SidebarHeader className="p-3 flex justify-center">
-        <Link className="text-xl font-bold flex items-center gap-4" to="/">
-          <LayoutDashboard />
-          Dashboard
-        </Link>
+    <Sidebar {...props}>
+      {/* Header */}
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="flex justify-center"
+              size="lg"
+              asChild
+            >
+              <Link to="/dashboard">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <LayoutDashboard className="size-4 dark:text-white" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <h4 className="text-lg font-bold text-color-brand">
+                    Dashboard
+                  </h4>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
-      <SidebarSeparator />
-      {/* sidebar content */}
+
+      {/* Content */}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+          <SidebarMenu>
+            {data.navMain.map((item) => {
+              if (item.children) {
+                // Collapsible Parent (e.g., Profile)
+                return (
+                  <Collapsible key={item.title} className="group/collapsible">
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton>
+                          {item.icon && <item.icon className="size-4" />}
+                          <span>{item.title}</span>
+                          <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.children.map((child) => (
+                            <SidebarMenuSubItem key={child.title}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  to={child.url}
+                                  className="flex items-center gap-2 text-sm"
+                                >
+                                  {child.icon && (
+                                    <child.icon className="size-4" />
+                                  )}
+                                  {child.title}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              } else {
+                // Simple Link (e.g., Home)
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link to={item.url} className="flex items-center gap-2">
+                        {item.icon && <item.icon className="size-4" />}
+                        {item.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              }
+            })}
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      {/* sidebar footer */}
+
+      {/* Footer */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -99,14 +159,25 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <User />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOut />
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <SidebarRail />
     </Sidebar>
   );
 }
